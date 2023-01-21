@@ -8,13 +8,12 @@ from django.http import HttpResponse
 
 from cutpanion.util import get_storage_url
 from mypage.fatlossjourney import FatlossJourney
-from mypage.forms import FatLossJourneyParamsAddForm
-from mypage.models import FatLossJourneyParams
+from mypage.forms import FatLossJourneyParamsAddForm, WeightBFForm
+from mypage.models import FatLossJourneyParams, WeightBF
 
 
 @login_required
 def newfatlossjourneyform(request):  
-    # return render(request, 'mypage/fatloss_journey_add_form.html', {'form': form})  
 
     if request.method == 'POST':
         FatLossJourneyParams.objects.filter(owner=request.user).delete()
@@ -36,12 +35,38 @@ def newfatlossjourneyform(request):
     }
     return render(request, 'mypage/fatloss_journey_add_form.html', context)
 
+@login_required
+def addWeightBF(request):
+    """Add bodyfat/weight data to your records"""
+
+    if request.method == 'POST':
+        form = WeightBFForm(request.POST)
+        if form.is_valid:
+            flj = form.save(commit=False)
+            flj.owner = request.user
+            flj.username = request.user.username
+            flj.save()
+
+            messages.success(
+                request, "Weight/BF added successfully", extra_tags='alert alert-success alert-dismissible fade show')
+
+            return redirect('mypage:addWeightBF')
+    else:
+        form = WeightBFForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'mypage/weight_bf_form.html', context)
+
+
+@login_required
 def mypageview(request):
     context = {
         'img_url': get_storage_url('img/background.jpg')
     }
     return render(request,'mypage/mypage.html', context)
 
+@login_required
 def trajectoryView(request):
     """Plot exoected trajectory of fatloss"""
 
@@ -61,6 +86,7 @@ def trajectoryView(request):
     return render(request,'mypage/trajectory.html', context)
 
 
+@login_required
 def FatlossjourneyView(request):
     """
     day0parms: dict
@@ -82,6 +108,7 @@ def FatlossjourneyView(request):
         return redirect('mypage:addFatLossJourneyForm')
 
     params = {
+        'initial_cut_date': flj_params.initial_cut_date,
         'c': flj_params.cal_deficit_per_day,
         'df': flj_params.days_journey_length,
         'w0': flj_params.weight_initial_dry,
@@ -90,12 +117,42 @@ def FatlossjourneyView(request):
         'dw': flj_params.deficit_days_per_week,
         'dc_cons_opt': [flj_params.daily_deficit_uncertainty, -flj_params.daily_deficit_uncertainty],
     }
+    weightBFs = WeightBF.objects.filter(owner=request.user).all().order_by('date')
+
     flj= FatlossJourney(params)
     flj_fig_bf = flj.plot_projection_lines(show=False)
     flj_fig_bf = flj.plot_projection_cdev_bands(flj_fig_bf, show=False)
 
     flj_fig_bodyweight = flj.plot_projection_lines(fig=None, variable="bodyweight", show=False)
     flj_fig_bodyweight = flj.plot_projection_cdev_bands(fig=flj_fig_bodyweight, variable="bodyweight", show=False)
+
+    weightBF_data = {'dates': [], 'weights': [], 'bfs': []}
+    for wbf in weightBFs:
+        weightBF_data['dates'].append(wbf.date)
+        weightBF_data['weights'].append(wbf.weight)
+        weightBF_data['bfs'].append(wbf.bf_percent)
+
+    flj_fig_bf = flj_fig_bf.add_trace(
+        go.Scatter(
+            x=weightBF_data['dates'],
+            y=weightBF_data['bfs'],
+            name="Bodyfat Actual",
+            mode='lines',
+            line=dict(color='rgba(0,0,0,1)'),
+        ),
+        secondary_y=False,
+    )
+
+    flj_fig_bodyweight = flj_fig_bodyweight.add_trace(
+        go.Scatter(
+            x=weightBF_data['dates'],
+            y=weightBF_data['weights'],
+            name="Weight Actual",
+            mode='lines',
+            line=dict(color='rgba(0,0,0,1)'),
+        ),
+        secondary_y=False,
+    )
 
     plot_div_bf = to_html(flj_fig_bf, include_plotlyjs="cdn", full_html=False)
     plot_div_bodyweight = to_html(flj_fig_bodyweight, include_plotlyjs="cdn", full_html=False)
@@ -106,4 +163,5 @@ def FatlossjourneyView(request):
         "username": username,
     }
     return render(request,'mypage/trajectory.html', context)
+
 

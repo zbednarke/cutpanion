@@ -1,5 +1,5 @@
 from django.contrib import admin
-from mypage.models import FatLossJourneyParams
+from mypage.models import FatLossJourneyParams, WeightBF
 
 # Register your models here.
 @admin.register(FatLossJourneyParams)
@@ -19,3 +19,17 @@ class FatLossJourneyParamsAdmin(admin.ModelAdmin):
     search_fields = ["owner", "owner__username"]
     list_filter = ["active"]
     date_hierarchy = "pub_date"
+
+@admin.register(WeightBF)
+class WeightBFAdmin(admin.ModelAdmin):
+    list_display = [
+        'owner',
+        'pub_date',
+        'username',
+        'date',
+        'weight',
+        'bf_percent',
+    ]
+    search_fields = ["owner", "owner__username"]
+    list_filter = ["username"]
+    date_hierarchy = "date"

@@ -24,6 +24,7 @@
 <p style="text-align:center">   {{ username }}</p>
  
 <a href="{% url 'mypage:addFatLossJourneyForm' %}">Reset My Trajectory</a>
+<a href="{% url 'mypage:addWeightBF' %}">Add Weight/BF Records</a>
 
 {% autoescape off %}
     {{ plot_div_bodyweight }}

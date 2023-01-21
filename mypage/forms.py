@@ -1,6 +1,23 @@
 from django import forms
-from .models import FatLossJourneyParams
+from .models import FatLossJourneyParams, WeightBF
 
+
+class WeightBFForm(forms.ModelForm):
+
+    date = forms.DateTimeField(label="Date or record", 
+        widget=forms.DateTimeInput(attrs={'class': 'form-control'}))
+    weight = forms.FloatField(label='Weight (lbs).  Must not be empty',
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    bf_percent = forms.FloatField(label='Bf percent (like .12 for 12 percent). Must not be empty', 
+        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = WeightBF
+        fields = [
+            'date',
+            'weight',
+            'bf_percent',
+         ]
 
 class FatLossJourneyParamsAddForm(forms.ModelForm):
 

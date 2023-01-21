@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.mypageview, name='home'),
     path('trajectory', views.FatlossjourneyView, name='trajectory'),
     path('addFatLossJourneyForm', views.newfatlossjourneyform, name='addFatLossJourneyForm'),
+    path('addWeightBF', views.addWeightBF, name='addWeightBF'),
 ]

@@ -2,10 +2,11 @@ import numpy as np
 from plotly import graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+import datetime 
 
 
 class FatlossJourney():
-    def __init__(self, day0params: dict):
+    def __init__(self, day0params: dict, weightBFs=None):
         """
         day0parms: dict
             dict with keys:
@@ -26,43 +27,48 @@ class FatlossJourney():
         self.db0 = day0params['db0']
         self.dw = day0params['dw']
         self.dc_cons_opt = day0params['dc_cons_opt']
+        self.initial_cut_date = day0params['initial_cut_date']
 
-        self.days = np.arange(self.df)
+        self.days_integer = np.arange(self.df)
+        self.dates = [
+            self.initial_cut_date + datetime.timedelta(days=i)
+            for i in range(self.df)
+        ]
         self.calc_data_proj()
 
     def calc_data_proj(self):
         
         # calc projection through df
-        self.bf_proj_med = self.body_fat_ratio(d=self.days, dc=None, bound=None)
-        self.bf_proj_cons = self.body_fat_ratio(d=self.days, dc=None, bound='conservative')
-        self.bf_proj_optim = self.body_fat_ratio(d=self.days, dc=None, bound='optimistic')
+        self.bf_proj_med = self.body_fat_ratio(d=self.days_integer, dc=None, bound=None)
+        self.bf_proj_cons = self.body_fat_ratio(d=self.days_integer, dc=None, bound='conservative')
+        self.bf_proj_optim = self.body_fat_ratio(d=self.days_integer, dc=None, bound='optimistic')
         self.calc_bf_cdev_bands(self.dc_cons_opt)
 
-        self.bw_proj_med = self.bodyweight(d=self.days, dc=None, bound=None)
-        self.bw_proj_cons = self.bodyweight(d=self.days, dc=None, bound='conservative')
-        self.bw_proj_optim = self.bodyweight(d=self.days, dc=None, bound='optimistic')
+        self.bw_proj_med = self.bodyweight(d=self.days_integer, dc=None, bound=None)
+        self.bw_proj_cons = self.bodyweight(d=self.days_integer, dc=None, bound='conservative')
+        self.bw_proj_optim = self.bodyweight(d=self.days_integer, dc=None, bound='optimistic')
         self.calc_bw_cdev_bands(self.dc_cons_opt)
         
     def calc_bf_cdev_bands(self, dc_cons_opt):
         dc_cons, dc_opt = dc_cons_opt
         self.bf_proj_cdev_bands = {
-            'bf_med_dc_cons': self.body_fat_ratio(d=self.days, dc=dc_cons, bound=None),
-            'bf_med_dc_opt': self.body_fat_ratio(d=self.days, dc=dc_opt, bound=None),
-            'bf_cons_dc_cons': self.body_fat_ratio(d=self.days, dc=dc_cons, bound='conservative'),
-            'bf_cons_dc_opt': self.body_fat_ratio(d=self.days, dc=dc_opt, bound='conservative'),
-            'bf_opt_dc_cons': self.body_fat_ratio(d=self.days, dc=dc_cons, bound='optimistic'),
-            'bf_opt_dc_opt': self.body_fat_ratio(d=self.days, dc=dc_opt, bound='optimistic')
+            'bf_med_dc_cons': self.body_fat_ratio(d=self.days_integer, dc=dc_cons, bound=None),
+            'bf_med_dc_opt': self.body_fat_ratio(d=self.days_integer, dc=dc_opt, bound=None),
+            'bf_cons_dc_cons': self.body_fat_ratio(d=self.days_integer, dc=dc_cons, bound='conservative'),
+            'bf_cons_dc_opt': self.body_fat_ratio(d=self.days_integer, dc=dc_opt, bound='conservative'),
+            'bf_opt_dc_cons': self.body_fat_ratio(d=self.days_integer, dc=dc_cons, bound='optimistic'),
+            'bf_opt_dc_opt': self.body_fat_ratio(d=self.days_integer, dc=dc_opt, bound='optimistic')
         }
 
     def calc_bw_cdev_bands(self, dc_cons_opt):
         dc_cons, dc_opt = dc_cons_opt
         self.bw_proj_cdev_bands = {
-            'bw_med_dc_cons': self.bodyweight(d=self.days, dc=dc_cons, bound=None),
-            'bw_med_dc_opt': self.bodyweight(d=self.days, dc=dc_opt, bound=None),
-            'bw_cons_dc_cons': self.bodyweight(d=self.days, dc=dc_cons, bound='conservative'),
-            'bw_cons_dc_opt': self.bodyweight(d=self.days, dc=dc_opt, bound='conservative'),
-            'bw_opt_dc_cons': self.bodyweight(d=self.days, dc=dc_cons, bound='optimistic'),
-            'bw_opt_dc_opt': self.bodyweight(d=self.days, dc=dc_opt, bound='optimistic')
+            'bw_med_dc_cons': self.bodyweight(d=self.days_integer, dc=dc_cons, bound=None),
+            'bw_med_dc_opt': self.bodyweight(d=self.days_integer, dc=dc_opt, bound=None),
+            'bw_cons_dc_cons': self.bodyweight(d=self.days_integer, dc=dc_cons, bound='conservative'),
+            'bw_cons_dc_opt': self.bodyweight(d=self.days_integer, dc=dc_opt, bound='conservative'),
+            'bw_opt_dc_cons': self.bodyweight(d=self.days_integer, dc=dc_cons, bound='optimistic'),
+            'bw_opt_dc_opt': self.bodyweight(d=self.days_integer, dc=dc_opt, bound='optimistic')
         }
 
     def body_fat_ratio(self, d=None, dc=None, bound=None):
@@ -152,7 +158,8 @@ class FatlossJourney():
     def proj_dataframe(self):
         assert self.data_exists()
         df = pd.DataFrame({
-            "time": self.days,
+            "days_integer": self.days_integer,
+            "dates": self.dates,
             "bf_conservative": self.bf_proj_cons,
             "bf_median": self.bf_proj_med,
             "bf_optimistic": self.bf_proj_optim,
@@ -183,6 +190,7 @@ class FatlossJourney():
             y_low, y_high = .05, .2
         else:
             y_low, y_high = bounds
+
         if variable == 'bodyfat ratio':
             title = 'Bodyfat Ratio Projections and Measurements'
             layout = self._layout(title, variable, y_low, y_high)
@@ -191,8 +199,6 @@ class FatlossJourney():
                 fig.layout = layout
                 # fig = go.Figure(layout=layout)
         
-            plotdata = []
-            time = df.time
             med = df.bf_median
             cons = df.bf_conservative
             optim = df.bf_optimistic
@@ -208,8 +214,6 @@ class FatlossJourney():
                 fig.layout = layout
                 # fig = go.Figure(layout=layout)
         
-            plotdata = []
-            time = df.time
             med = df.bw_median
             cons = df.bw_conservative
             optim = df.bw_optimistic
@@ -219,15 +223,15 @@ class FatlossJourney():
 
         for data, name, color in zip(ydata, names, colors):
             fig = fig.add_trace(
-                    go.Scatter(
-                        x=time,
-                        y=data,
-                        name=name,
-                        mode='lines',
-                        line=dict(color=color),
-                        ),
-                    secondary_y=False,
-                )
+                go.Scatter(
+                    x=self.dates,
+                    y=data,
+                    name=name,
+                    mode='lines',
+                    line=dict(color=color),
+                ),
+                secondary_y=False,
+            )
         if show:
             fig.show(config={"displayModeBar": False, "showTips": False})
         return fig
@@ -262,7 +266,7 @@ class FatlossJourney():
             
         else: 
             raise Exception('Unrecognized bf0 bound.')
-        x = df.time.to_list()
+        x = df.dates.to_list()
         cons = cons.to_list()
         optim = optim.to_list()
 #         names = ["bf0 median", "bf0 conservative", "bf0 optimistic"]

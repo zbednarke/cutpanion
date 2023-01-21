@@ -4,7 +4,20 @@ from django.utils import timezone
 from django.urls import reverse
 
 
-# Create your models here.
+class WeightBF(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(default="", max_length=30)
+    pub_date = models.DateTimeField(default=timezone.now)
+
+    date = models.DateTimeField(null=False)
+    weight = models.FloatField(null=False)
+    bf_percent = models.FloatField(null=False)
+
+    def get_absolute_url(self):
+        """Returns the URL to access a particular instance of MyModelName."""
+        return reverse('model-detail-view', args=[str(self.id)])
+
+
 class FatLossJourneyParams(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(default="", max_length=30)
