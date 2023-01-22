@@ -15,17 +15,18 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <div class="one-hundred-reez" style="background-image:url('{{ img_url }}')">
-                <h1 class="text-center mt-3 mb-3">Welcome to Cut Reasons List!</h1>
+            <img src="{{ img_url }}" alt="{{ username }}" width="280" height="400">
+
+            <div class="one-hundred-reez"> 
+                  <!-- </div> style="background-image:url('{{ img_url }}')"> -->
+                <h1 class="text-center mt-3 mb-3">100 Reasons Why I Cut</h1>
 
 
 
                 <ul class="list-group">
                     {% for whycut in whycuts %}
-                    <li class="list-group-item">
-                        {% if request.user == whycut.owner %}
-                            {% whycut.reason %}
-                        {% endif %}
+                    <li class="list-group-item" style="color:black;">
+                            {{ whycut.reason }}
                     </li>
     
                     {% endfor %}

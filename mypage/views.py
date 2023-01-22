@@ -5,6 +5,7 @@ from plotly.io import to_html
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
+import random
 
 from cutpanion.util import get_storage_url
 from mypage.fatlossjourney import FatlossJourney
@@ -38,6 +39,8 @@ def newfatlossjourneyform(request):
 @login_required
 def addWeightBF(request):
     """Add bodyfat/weight data to your records"""
+    reasons = WhyCut.objects.filter(owner=request.user).all()
+    messages.success(request, f"Why cut?\n{random.choice(reasons).reason}", extra_tags='alert alert-success alert-dismissible fade show')
 
     if request.method == 'POST':
         form = WeightBFForm(request.POST)
@@ -61,16 +64,21 @@ def addWeightBF(request):
 
 @login_required
 def mypageview(request):
+    reasons = WhyCut.objects.filter(owner=request.user).all()
+    messages.success(request, f"Why cut?\n{random.choice(reasons).reason}", extra_tags='alert alert-success alert-dismissible fade show')
     username = request.user.username
     context = {
         'img_url': get_storage_url(f'img/{username}_background.jpg'),
-        'whycuts': WhyCut.objects.filter(owner=request.user).all()
+        'whycuts': WhyCut.objects.filter(owner=request.user).all(),
+        'username': username
     }
     return render(request,'mypage/mypage.html', context)
 
 @login_required
 def trajectoryView(request):
     """Plot exoected trajectory of fatloss"""
+    reasons = WhyCut.objects.filter(owner=request.user).all()
+    messages.success(request, f"Why cut?\n{random.choice(reasons).reason}", extra_tags='alert alert-success alert-dismissible fade show')
 
     np.random.seed(42)
     
@@ -103,7 +111,9 @@ def FatlossjourneyView(request):
             actual cal deficit per day - nominal value. conservative and optimistic values.
     """
 
-
+    reasons = WhyCut.objects.filter(owner=request.user).all()
+    messages.success(request, f"Why cut?\n{random.choice(reasons).reason}", extra_tags='alert alert-success alert-dismissible fade show')
+    
     username = request.user.username
     flj_params = FatLossJourneyParams.get_most_recent(username)
     if flj_params is None:

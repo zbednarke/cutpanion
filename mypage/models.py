@@ -17,7 +17,7 @@ class WeightBF(models.Model):
     username = models.CharField(default="", max_length=30)
     pub_date = models.DateTimeField(default=timezone.now)
 
-    date = models.DateTimeField(null=False)
+    date = models.DateTimeField(default=timezone.now, null=False)
     weight = models.FloatField(null=False)
     bf_percent = models.FloatField(null=False)
 

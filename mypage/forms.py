@@ -1,10 +1,11 @@
 from django import forms
 from .models import FatLossJourneyParams, WeightBF
+from django.utils import timezone
 
 
 class WeightBFForm(forms.ModelForm):
 
-    date = forms.DateTimeField(label="Date or record", 
+    date = forms.DateTimeField(label="Date of record", initial=timezone.now(),
         widget=forms.DateTimeInput(attrs={'class': 'form-control'}))
     weight = forms.FloatField(label='Weight (lbs).  Must not be empty',
         widget=forms.NumberInput(attrs={'class': 'form-control'}))
