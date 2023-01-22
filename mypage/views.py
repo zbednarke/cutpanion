@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from cutpanion.util import get_storage_url
 from mypage.fatlossjourney import FatlossJourney
 from mypage.forms import FatLossJourneyParamsAddForm, WeightBFForm
-from mypage.models import FatLossJourneyParams, WeightBF
+from mypage.models import FatLossJourneyParams, WeightBF, WhyCut
 
 
 @login_required
@@ -61,8 +61,10 @@ def addWeightBF(request):
 
 @login_required
 def mypageview(request):
+    username = request.user.username
     context = {
-        'img_url': get_storage_url('img/background.jpg')
+        'img_url': get_storage_url(f'img/{username}_background.jpg'),
+        'whycuts': WhyCut.objects.filter(owner=request.user).all()
     }
     return render(request,'mypage/mypage.html', context)
 
