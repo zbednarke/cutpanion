@@ -22,11 +22,10 @@
 </div>
 
 <p style="text-align:center">   {{ username }}</p>
- 
-<a class="btn btn-light btn-lg" href="{% url 'mypage:addFatLossJourneyForm' %}" role="button">Reset My Trajectory</a>
-<a class="btn btn-light btn-lg" href="{% url 'mypage:addWeightBF' %}" role="button">Add Weight/BF Records</a>
-<!-- <a href="{% url 'mypage:addFatLossJourneyForm' %}">Reset My Trajectory</a> -->
-<!-- <a href="{% url 'mypage:addWeightBF' %}">Add Weight/BF Records</a> -->
+ <center> 
+    <a class="btn btn-primary btn-sm" href="{% url 'mypage:addFatLossJourneyForm' %}" role="button">Reset My Trajectory</a>
+    <a class="btn btn-primary btn-sm" href="{% url 'mypage:addWeightBF' %}" role="button">Add Weight/BF Records</a>
+ </center>
 
 {% autoescape off %}
     {{ plot_div_bodyweight }}

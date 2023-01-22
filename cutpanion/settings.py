@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'frontpage.apps.FrontpageConfig',
+    # 'frontpage.apps.FrontpageConfig',
     'accounts.apps.AccountsConfig',
     'mypage.apps.MypageConfig'
 ]
@@ -114,7 +114,6 @@ DATABASES = {
     }
 }
 
-print('DATABASES SETTINGS', DATABASES)
 # generic
 # DATABASES = {
 #     'default': {

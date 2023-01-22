@@ -4,6 +4,14 @@ from django.utils import timezone
 from django.urls import reverse
 
 
+class WhyCut(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    pub_date = models.DateTimeField(default=timezone.now)
+
+    reason = models.CharField(null=False, max_length=300)
+    
+
+
 class WeightBF(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(default="", max_length=30)

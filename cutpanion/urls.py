@@ -22,7 +22,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace="accounts")), 
-    path('frontpage/', include('frontpage.urls', namespace="frontpage")),
     path('mypage/', include('mypage.urls', namespace="mypage")),
     path('reset_password/', auth_views.PasswordResetView.as_view(), name ='reset_password'),
     path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(), name ='password_reset_done'),

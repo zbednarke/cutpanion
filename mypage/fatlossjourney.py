@@ -196,14 +196,17 @@ class FatlossJourney():
             layout = self._layout(title, variable, y_low, y_high)
             if fig is None:
                 fig = make_subplots(specs=[[{"secondary_y": True}]])
-                fig.layout = layout
-                # fig = go.Figure(layout=layout)
+                fig.update_layout(
+                    title=title,
+                    xaxis_title="Date",
+                    yaxis_title="Bodyfat Ratio",
+                )              
         
             med = df.bf_median
             cons = df.bf_conservative
             optim = df.bf_optimistic
             ydata = [med, cons, optim]
-            names = ["bf0 median", "bf0 conservative", "bf0 optimistic"]
+            names = ["Mean Estimate", "Conservative", "Optimistic"]
             colors = ['rgba(0,0,255,1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)']
         
         if variable == 'bodyweight':
@@ -211,14 +214,22 @@ class FatlossJourney():
             layout = self._layout(title, variable, y_low, y_high)
             if fig is None:
                 fig = make_subplots(specs=[[{"secondary_y": True}]])
-                fig.layout = layout
-                # fig = go.Figure(layout=layout)
+                fig.update_layout(
+                    title=title,
+                    xaxis_title="Date",
+                    yaxis_title="Bodyweight (lbs)",
+                    # font=dict(
+                    #     family="Courier New, monospace",
+                    #     size=18,
+                    #     color="RebeccaPurple"
+                    # )
+                )
         
             med = df.bw_median
             cons = df.bw_conservative
             optim = df.bw_optimistic
             ydata = [med, cons, optim]
-            names = ["bw0 median", "bw0 conservative", "bw0 optimistic"]
+            names = ["Mean Estimate", "Conservative", "Optimistic"]
             colors = ['rgba(0,0,255,1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)']
 
         for data, name, color in zip(ydata, names, colors):
@@ -356,4 +367,4 @@ class FatlossJourney():
                   }
                 },
             )
-        return 
+        return layout
