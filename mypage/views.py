@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 import random
+import datetime
 
 from cutpanion.util import get_storage_url
 from mypage.fatlossjourney import FatlossJourney
@@ -144,6 +145,29 @@ def FatlossjourneyView(request):
         weightBF_data['weights'].append(wbf.weight)
         weightBF_data['bfs'].append(wbf.bf_percent)
 
+
+    # this should be util func 
+    weekly_lows_weights = []
+    weekly_dates = []
+    first_date = min(weightBF_data['dates']).date()
+    last_date = max(weightBF_data['dates']).date()
+    delta = last_date - first_date  
+    all_dates_in_range = [first_date + datetime.timedelta(days=i) for i in range(delta.days + 1)] 
+    n_weeks = int(np.ceil(len(all_dates_in_range)))
+
+    for n in range(n_weeks):
+        this_week_weights = []
+        week_dates = all_dates_in_range[n * 7: (n + 1) * 7]
+        week_date_day: datetime.date
+        for wbf in weightBFs:
+            if wbf.date.date() in week_dates:
+                this_week_weights.append(wbf.weight)
+                week_date_day = wbf.date.date()
+
+        if this_week_weights:
+            weekly_lows_weights.append(np.min(this_week_weights))
+            weekly_dates.append(week_date_day)
+
     flj_fig_bf = flj_fig_bf.add_trace(
         go.Scatter(
             x=weightBF_data['dates'],
@@ -161,10 +185,24 @@ def FatlossjourneyView(request):
             y=weightBF_data['weights'],
             name="Weight Actual",
             mode='lines',
-            line=dict(color='rgba(0,0,0,1)'),
+            line=dict(color='rgba(0,0,0,.5)', width=3, dash='dash'),
         ),
         secondary_y=False,
     )
+
+    flj_fig_bodyweight = flj_fig_bodyweight.add_trace(
+        go.Scatter(
+            x=weekly_dates,
+            y=weekly_lows_weights,
+            name="Weekly Lows",
+            mode='lines',
+            line=dict(color='rgba(0,0,0,1)', width=4),
+        ),
+        secondary_y=False,
+    )
+
+
+
 
     plot_div_bf = to_html(flj_fig_bf, include_plotlyjs="cdn", full_html=False)
     plot_div_bodyweight = to_html(flj_fig_bodyweight, include_plotlyjs="cdn", full_html=False)

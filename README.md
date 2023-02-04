@@ -32,3 +32,4 @@ tutorial topics
 - how to set up gcp network, VM, sql, and storage buckets
 - how to embed data in plotly
 - how to securely tunnel from laptop to a public server (gmt portal)
+- 80 -> 443 redirect
